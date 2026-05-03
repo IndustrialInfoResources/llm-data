@@ -1,0 +1,95 @@
+{
+  "source": "Industrial Info Resources (IIR)",
+  "generatedAt": "2026-05-01T13:28:16Z",
+  "note": "Approximate record counts. Exact figures update daily. generatedAt is replaced by the generate_coverage.sh script at runtime.",
+  "totals": {
+    "plants": 350000,
+    "projects": 120000,
+    "units": 500000,
+    "pipelines": 50000,
+    "offlineEvents": 80000,
+    "companies": 370000,
+    "transmissionLines": 85000,
+    "laborProjectRecords": 200000
+  },
+  "bySector": {
+    "powerGeneration": {
+      "industryCode": "01",
+      "plants": 85000,
+      "projects": 22000,
+      "units": 180000
+    },
+    "oilGasTerminals": {
+      "industryCode": "02",
+      "plants": 6500,
+      "projects": 8500,
+      "units": 22000
+    },
+    "petroleumRefining": {
+      "industryCode": "03",
+      "plants": 8500,
+      "projects": 14000,
+      "units": 95000
+    },
+    "chemicals": {
+      "industryCode": "04",
+      "plants": 42000,
+      "projects": 18000,
+      "units": 85000
+    },
+    "pipelines": {
+      "industryCode": "05",
+      "pipelineSegments": 50000,
+      "meterPoints": 22000
+    },
+    "pulpAndPaper": {
+      "industryCode": "06",
+      "plants": 4500,
+      "projects": 3500,
+      "units": 14000
+    },
+    "foodAndBeverage": {
+      "industryCode": "07",
+      "plants": 55000,
+      "projects": 9000,
+      "units": 28000
+    },
+    "metalsAndMinerals": {
+      "industryCode": "08",
+      "plants": 18000,
+      "projects": 12000,
+      "units": 45000
+    },
+    "industrialManufacturing": {
+      "industryCode": "09",
+      "plants": 65000,
+      "projects": 16000,
+      "units": 35000
+    },
+    "pharmaceuticals": {
+      "industryCode": "10",
+      "plants": 12000,
+      "projects": 7000,
+      "units": 18000
+    },
+    "wastewater": {
+      "industryCode": "11",
+      "plants": 8000,
+      "projects": 4000,
+      "units": 9000
+    },
+    "dataCenters": {
+      "industryCode": "12",
+      "plants": 9500,
+      "projects": 11000,
+      "units": 7500
+    }
+  },
+  "byGeography": {
+    "northAmerica": 0.62,
+    "europe": 0.18,
+    "latinAmerica": 0.08,
+    "asiaPacific": 0.07,
+    "middleEastAfrica": 0.05
+  }
+}

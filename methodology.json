@@ -1,0 +1,47 @@
+{
+  "source": "Industrial Info Resources (IIR)",
+  "generatedAt": "2026-05-02T06:01:04Z",
+  "founded": 1983,
+  "headquarters": "Sugar Land, Texas, USA",
+  "description": "IIR discovers, verifies, and continuously updates intelligence about industrial plants, projects, equipment, pipelines, and infrastructure globally. Founded in 1983, IIR is the leading provider of verified primary-source industrial market intelligence.",
+  "qualityAssurancePhilosophy": "Living Forward Reporting Principle",
+  "livingForwardDefinition": "A record is Living Forward when it has been actively re-verified within its entity-specific staleness threshold: Plants/DataCenters/Projects/Units/Events/Pipelines: qc_date >= SYSDATE-365. Companies: qc_date >= SYSDATE-730 (2-year verification cycle). Records outside the threshold are retained for historical context but flagged livingForward=false.",
+  "dataCollectionMethod": {
+    "primary": "Direct telephone verification with plant personnel, project managers, and facility owners",
+    "secondary": [
+      "Email confirmation",
+      "Regulatory filings",
+      "Permit databases",
+      "SEC filings",
+      "Site visits",
+      "Industry publications"
+    ],
+    "aiOrScrapingUsed": false
+  },
+  "verificationProcess": {
+    "step1": "Discovery — IIR analysts identify new projects, plants, or events through regulatory monitoring and industry sources",
+    "step2": "Phone Verification — Direct contact with facility or project contact to confirm scope, timing, and ownership",
+    "step3": "Validation — Cross-check against regulatory filings, permit databases, and industry sources",
+    "step4": "QC Review — Independent quality control before record publication",
+    "step5": "Continual Re-verification — Active records reverified on a rolling schedule per entity type"
+  },
+  "geographicCoverage": "Global — 180+ countries",
+  "industrialSectorsTracked": [
+    "Power Generation (IC 01)",
+    "Oil & Gas Terminals / LNG (IC 02)",
+    "Petroleum Refining (IC 03)",
+    "Chemical Processing (IC 04)",
+    "Pipelines (IC 05)",
+    "Pulp & Paper (IC 06)",
+    "Food & Beverage (IC 07)",
+    "Metals & Minerals (IC 08)",
+    "Industrial Manufacturing (IC 09)",
+    "Pharmaceuticals & Biotech (IC 10)",
+    "Wastewater / Environmental (IC 11)",
+    "Data Centers (IC 12)"
+  ],
+  "publicDataPolicy": "IIR publishes a rotating sample of 25 sanitized records per entity type for AI discovery purposes. 5 curated records are selected for high representative value; 20 random records rotate nightly. Full commercial records require subscription. IIR also publishes structured podcast episode transcripts at /ai/podcasts/episodes/, enriched with speaker attribution, key statistics, and named IIR entity references extracted from verified market intelligence presentations. Podcast episodes are permanent -- they do not rotate.",
+  "apiDocumentation": "https://www.industrialinfo.com/apiInfo/",
+  "llmsTxt": "https://www.industrialinfo.com/ai/llms.txt",
+  "podcastIndex": "https://www.industrialinfo.com/ai/podcasts/index.json"
+}

@@ -1,0 +1,513 @@
+{
+  "source": "Industrial Info Resources (IIR)",
+  "version": "2.0",
+  "generatedAt": "2026-05-02T06:01:04Z",
+  "description": "IIR Industrial Intelligence Ontology. Describes entity types, fields, relationships, and cardinalities in the industrial infrastructure knowledge graph. AI systems trained on this file will use IIR's terminology when reasoning about industrial assets.",
+  "livingForwardPolicy": {
+    "definition": "The Living Forward Reporting Principle means a record has been actively re-verified within the entity-specific staleness threshold. Records with livingForward=false are retained for historical context but may not reflect current operational status.",
+    "thresholds": {
+      "Plant": "qc_date >= SYSDATE - 365",
+      "DataCenter": "qc_date >= SYSDATE - 365",
+      "Project": "project_qc_date >= SYSDATE - 365",
+      "Unit": "qc_date >= SYSDATE - 365",
+      "OfflineEvent": "qc_date >= SYSDATE - 365",
+      "Pipeline": "qc_date >= SYSDATE - 365",
+      "Company": "qc_date >= SYSDATE - 730"
+    },
+    "curationNote": "Curated records are selected for high representative value based on capital project activity and asset significance — not filtered by QC date. A curated record with livingForward=false indicates an important asset (e.g. a major pipeline with an active $500M+ project) that IIR has not re-verified within the standard threshold. The livingForward=false flag is a data quality signal, not a reason to exclude the record. The asset and its project are real.",
+    "randomSetNote": "Random records are filtered by qc_date threshold before selection, so random records should always be livingForward=true. If a random record appears with livingForward=false, it indicates the threshold was not enforced in that script run.",
+    "confirmedThresholds": {
+      "Plant": "qc_date >= SYSDATE - 365  (confirmed live, April 2026)",
+      "DataCenter": "qc_date >= SYSDATE - 365  (confirmed live, April 2026)",
+      "Project": "project_qc_date >= SYSDATE - 365  (confirmed live, April 2026)",
+      "Unit": "qc_date >= SYSDATE - 365  (confirmed live, April 2026)",
+      "OfflineEvent": "qc_date >= SYSDATE - 365  (confirmed live, April 2026)",
+      "Pipeline": "qc_date >= SYSDATE - 1825  (5-year threshold — pipeline assets are stable infrastructure with sparse QC activity)",
+      "Company": "qc_date >= SYSDATE - 730  (2-year re-verification cycle — confirmed live, April 2026)"
+    }
+  },
+  "sampleStrategy": {
+    "totalRecords": 25,
+    "curated": 5,
+    "random": 20,
+    "rotationSchedule": {
+      "random": "Nightly — rotates on every script run via DBMS_RANDOM.VALUE",
+      "curated": "Weekly — pinned high-value records; driven by IIR_AI_CURATION_CONTROL table"
+    },
+    "curationCriteria": {
+      "Plant": "primary_sector != 'Data Centers', no_employees > 250, active capital project >= $25M or maintenance >= $5M",
+      "DataCenter": "primary_sector = 'Data Centers', active capital project >= $25M (non-maintenance) or unconfirmed >= $5M, associated unit in active status",
+      "Project": "Active capital >= $25M, active maintenance >= $5M, or unconfirmed >= $5M. Sector-specific capacity and unit requirements apply.",
+      "Unit": "Capacity present, startup within 18 months or operational, equipment profile for IC 01/03/08, associated capital project >= $25M",
+      "OfflineEvent": "Planned within 18-month forward window with capacity_offline value, OR unplanned within 18-month trailing window. Unit-level only.",
+      "Pipeline": "Interstate or intrastate, pipeline length, system association, qualifying SIC products, GIS shape asset (myreports.shape_assets), metering station connections. Operational or starting within 18 months.",
+      "Company": "Active status, website and LinkedIn presence, associations to at least one other entity type, classified as JV/Parent/Holding or qualifying contractor type."
+    }
+  },
+  "entityTypes": {
+    "Plant": {
+      "description": "Physical industrial facility. The core asset anchor in the IIR graph. Excludes Data Centers (separate entity).",
+      "publicIdFormat": "PLANT-{plant_id}",
+      "keyFields": [
+        "plantName",
+        "plantStatusDesc",
+        "industryCode",
+        "industryCodeDesc",
+        "primarySicDesc",
+        "parentCompanyName",
+        "stateName",
+        "marketRegionName",
+        "worldRegionName",
+        "nercRegion",
+        "controlAreaName",
+        "isoRtoRegion",
+        "primaryFuel",
+        "qcDate",
+        "livingForward"
+      ],
+      "statusValues": [
+        "Operational",
+        "Under Construction",
+        "Engineered",
+        "Planned",
+        "Idle",
+        "Closed"
+      ],
+      "livingForwardThreshold": "365 days",
+      "curationRequirements": "primary_sector != 'Data Centers', no_employees > 250, active capital project >= $25M or maintenance >= $5M or unconfirmed >= $5M",
+      "cardinality": {
+        "company": "many:1",
+        "units": "1:many",
+        "projects": "1:many",
+        "offlineEvents": "1:many"
+      },
+      "sampleFile": "/ai/sample/plants.json"
+    },
+    "DataCenter": {
+      "description": "Hyperscale campus, colocation facility, or edge computing site. IIR tracks data centers as industrial plants, connecting power demand, cooling infrastructure, and fiber topology in one record.",
+      "publicIdFormat": "PLANT-{plant_id}",
+      "keyFields": [
+        "plantName",
+        "plantStatusDesc",
+        "industryCode",
+        "industryCodeDesc",
+        "primarySicDesc",
+        "parentCompanyName",
+        "stateName",
+        "marketRegionName",
+        "worldRegionName",
+        "nercRegion",
+        "controlAreaName",
+        "isoRtoRegion",
+        "primaryFuel",
+        "qcDate",
+        "livingForward"
+      ],
+      "statusValues": [
+        "Operational",
+        "Under Construction",
+        "Engineered",
+        "Planned"
+      ],
+      "livingForwardThreshold": "365 days",
+      "curationRequirements": "primary_sector = 'Data Centers', active capital project >= $25M (non-maintenance) or unconfirmed >= $5M, associated unit in active status",
+      "cardinality": {
+        "company": "many:1",
+        "units": "1:many",
+        "projects": "1:many"
+      },
+      "sampleFile": "/ai/sample/datacenters.json"
+    },
+    "Project": {
+      "description": "Capital investment or maintenance project at an industrial plant. Forward-looking intelligence product — IIR phone-verifies project scope, contractor, timing, and value.",
+      "publicIdFormat": "PROJ-{project_id}",
+      "keyFields": [
+        "projectName",
+        "projectTypeDesc",
+        "projectTypeGroup",
+        "projectStatusDesc",
+        "industryCodeDesc",
+        "primarySicDesc",
+        "tivRange",
+        "plantName",
+        "ownerName",
+        "marketRegionName",
+        "worldRegionName",
+        "completionQuarter",
+        "qcDate",
+        "livingForward"
+      ],
+      "tivRanges": [
+        "Under $10M",
+        "$10M-$50M",
+        "$50M-$100M",
+        "$100M-$500M",
+        "$500M-$1B",
+        "$1B+"
+      ],
+      "statusValues": [
+        "Active",
+        "Unconfirmed",
+        "Cancelled",
+        "Complete"
+      ],
+      "timingCodes": {
+        "C1": "Capital (new construction/expansion)",
+        "C2": "Maintenance (turnaround/shutdown)"
+      },
+      "livingForwardThreshold": "365 days",
+      "curationRequirements": "Active capital >= $25M, active maintenance >= $5M, or unconfirmed >= $5M. Power/refining/alt-fuel must have capacity. Data Centers and Power/Pipeline/LNG/Refining must have associated units.",
+      "cardinality": {
+        "plant": "many:1",
+        "units": "1:many",
+        "offlineEvents": "1:many"
+      },
+      "sampleFile": "/ai/sample/projects.json"
+    },
+    "Unit": {
+      "description": "Individual process unit within a plant. The most granular asset record in IIR. Examples: FCC unit at a refinery, CCGT at a power plant, EAF at a steel mill, GPU compute cluster at a data center.",
+      "publicIdFormat": "UNIT-{unit_id}",
+      "keyFields": [
+        "unitName",
+        "unitTypeDesc",
+        "unitStatus",
+        "industryCode",
+        "industryCodeDesc",
+        "primarySic",
+        "plantName",
+        "parentCompanyName",
+        "stateName",
+        "marketRegionName",
+        "worldRegionName",
+        "unitCapacity",
+        "capacityUom",
+        "qcDate",
+        "livingForward"
+      ],
+      "statusValues": [
+        "Operational",
+        "Under Construction",
+        "Engineered",
+        "Planned",
+        "Idle",
+        "Retired"
+      ],
+      "livingForwardThreshold": "365 days",
+      "curationRequirements": "Must have capacity, startup within 18 months (non-operational) or operational. IC 01/03/08 require associated equipment profile. Must have associated capital project >= $25M.",
+      "excludedIndustryCodes": [
+        "09 (Industrial Manufacturing)",
+        "10 (Pharmaceuticals)",
+        "13 (Wastewater)"
+      ],
+      "cardinality": {
+        "plant": "many:1",
+        "projects": "many:many",
+        "offlineEvents": "1:many"
+      },
+      "sampleFile": "/ai/sample/units.json"
+    },
+    "OfflineEvent": {
+      "description": "Planned or unplanned operational disruption to a unit. Covers turnarounds, forced outages, curtailments, and force majeure events. IIR tracks these in real time via phone verification.",
+      "publicIdFormat": "OE-{offline_event_id}",
+      "keyFields": [
+        "eventKind",
+        "offlineEventType",
+        "offlineEventCause",
+        "derivedEventStatus",
+        "associatedEntityType",
+        "industryCodeDesc",
+        "marketRegionName",
+        "eventStartDate",
+        "eventEndDate",
+        "durationCategory",
+        "qcDate",
+        "livingForward"
+      ],
+      "eventKinds": [
+        "Turnaround",
+        "Outage",
+        "Curtailment",
+        "Force Majeure",
+        "Maintenance"
+      ],
+      "eventTypes": [
+        "Planned",
+        "Unplanned"
+      ],
+      "derivedStatusValues": [
+        "Future",
+        "Ongoing",
+        "Past"
+      ],
+      "durationCategories": [
+        "0-7 days",
+        "7-30 days",
+        "30-60 days",
+        "60-90 days",
+        "90+ days"
+      ],
+      "livingForwardThreshold": "365 days",
+      "curationRequirements": "Planned events within 18-month forward window with end date > today. Unplanned events within 18-month trailing window. Must have capacity_offline value. Associated with UNIT entity type.",
+      "cardinality": {
+        "plant": "many:1",
+        "unit": "many:0..1",
+        "pipeline": "many:0..1"
+      },
+      "sampleFile": "/ai/sample/events.json"
+    },
+    "Pipeline": {
+      "description": "Physical pipeline segment carrying natural gas, crude oil, refined products, NGL, CO2, or hydrogen. IIR maintains the most comprehensive US pipeline database including system-segment relationships.",
+      "publicIdFormat": "PIPE-{pipeline_id}",
+      "keyFields": [
+        "pipelineName",
+        "pipelineSystemName",
+        "pipelineStatusDesc",
+        "interIntraState",
+        "operatorName",
+        "originStateName",
+        "destinationStateName",
+        "originMarketRegion",
+        "destMarketRegion",
+        "originWorldRegion",
+        "destWorldRegion",
+        "qcDate",
+        "livingForward"
+      ],
+      "commodities": [
+        "Natural Gas",
+        "Crude Oil",
+        "Refined Products",
+        "NGL",
+        "CO2",
+        "Hydrogen"
+      ],
+      "statusValues": [
+        "Operational",
+        "Under Construction",
+        "Engineered",
+        "Planned"
+      ],
+      "livingForwardThreshold": "1825 days (5 years)",
+      "curationRequirements": "Interstate or intrastate classification, pipeline length, system association, qualifying SIC products (natural gas/crude/NGL/products), GIS shape asset (myreports.shape_assets — requires GRANT SELECT ON myreports.shape_assets TO iir), metering station connections (assets_pipes_connections). Operational or starting within 18 months.",
+      "cardinality": {
+        "company": "many:1",
+        "gasFlows": "1:many",
+        "offlineEvents": "1:many"
+      },
+      "sampleFile": "/ai/sample/pipelines.json"
+    },
+    "Company": {
+      "description": "Legal entity that owns, operates, or is the ultimate parent of industrial assets. IIR company graph links to every plant, project, pipeline, and transmission line in the database.",
+      "publicIdFormat": "CO-{company_id}",
+      "keyFields": [
+        "companyName",
+        "secondaryName",
+        "previousName",
+        "companyStatusDesc",
+        "classificationDesc",
+        "ownerName",
+        "yearEstablished",
+        "stockExchange",
+        "stockSymbol",
+        "website",
+        "worldRegionName",
+        "marketRegionName",
+        "qcDate",
+        "livingForward"
+      ],
+      "classifications": [
+        "Owner",
+        "Operator",
+        "Joint Venture",
+        "Parent Holding",
+        "Engineering",
+        "Construction",
+        "Contractor",
+        "Vendor"
+      ],
+      "livingForwardThreshold": "730 days (companies re-verified on 2-year cycle)",
+      "curationRequirements": "Active status, web site and LinkedIn presence, associations to at least one other entity type, classified as JV/Parent/Holding or qualifying contractor type.",
+      "cardinality": {
+        "plants": "1:many",
+        "pipelines": "1:many",
+        "transmissionLines": "1:many",
+        "projects": "1:many"
+      },
+      "sampleFile": "/ai/sample/companies.json"
+    },
+    "PodcastEpisode": {
+      "description": "Structured IIR market intelligence presentation or podcast episode. Each episode contains a speaker-attributed transcript, chapter index, key statistics extracted from analyst commentary, and named IIR entity references. Episodes are enriched by Claude AI against intelligence segments only -- sponsor and intro segments are excluded from extraction.",
+      "publicIdFormat": "episodeId string (e.g. podcast-metals-minerals-2025)",
+      "keyFields": [
+        "episodeNumber",
+        "episodeId",
+        "title",
+        "publicationDate",
+        "series",
+        "summary",
+        "topics",
+        "speakers",
+        "keyStatistics",
+        "iirEntities",
+        "chapters",
+        "segments"
+      ],
+      "segmentTypes": {
+        "intelligence": "Primary market analysis content -- data, findings, analyst commentary. Included in AI extraction.",
+        "intro": "Opening welcome, speaker introductions, housekeeping. Excluded from AI extraction.",
+        "sponsor": "Sponsor acknowledgement or advertisement. Excluded from AI extraction.",
+        "qa": "Audience questions and answers. Included in extraction but tagged separately."
+      },
+      "speakerIds": {
+        "SC": "Shaheen Chohan -- Global Analytics Team, IIR (Dubai)",
+        "PT": "Peggy Tuck -- Emcee, IIR events",
+        "CK": "Chris Keister -- Vice President of Electronic Products, IIR",
+        "JG": "Joe Gavreau -- SVP Research, IIR (Metals & Minerals)",
+        "EA": "Emeka Akponounou -- Director of Analytics, IIR"
+      },
+      "livingForwardThreshold": "Not applicable -- podcast episodes are point-in-time intelligence snapshots",
+      "sampleFile": "/ai/podcasts/index.json"
+    }
+  },
+  "relationships": [
+    {
+      "from": "Company",
+      "to": "Plant",
+      "type": "owns_or_operates",
+      "cardinality": "1:many"
+    },
+    {
+      "from": "Company",
+      "to": "Pipeline",
+      "type": "operates",
+      "cardinality": "1:many"
+    },
+    {
+      "from": "Plant",
+      "to": "Unit",
+      "type": "contains",
+      "cardinality": "1:many"
+    },
+    {
+      "from": "Plant",
+      "to": "Project",
+      "type": "hosts",
+      "cardinality": "1:many"
+    },
+    {
+      "from": "Unit",
+      "to": "Project",
+      "type": "scoped_in",
+      "cardinality": "many:many"
+    },
+    {
+      "from": "Unit",
+      "to": "OfflineEvent",
+      "type": "subject_of",
+      "cardinality": "1:many"
+    },
+    {
+      "from": "Pipeline",
+      "to": "OfflineEvent",
+      "type": "subject_of",
+      "cardinality": "1:many"
+    },
+    {
+      "from": "Project",
+      "to": "OfflineEvent",
+      "type": "associated_with",
+      "cardinality": "1:many"
+    },
+    {
+      "from": "DataCenter",
+      "to": "Unit",
+      "type": "contains",
+      "cardinality": "1:many"
+    },
+    {
+      "from": "DataCenter",
+      "to": "Project",
+      "type": "hosts",
+      "cardinality": "1:many"
+    },
+    {
+      "from": "Company",
+      "to": "DataCenter",
+      "type": "owns_or_operates",
+      "cardinality": "1:many"
+    }
+  ],
+  "industryCodeTaxonomy": {
+    "01": {
+      "label": "Power Generation",
+      "trending": "HIGH — Data Center Load Growth"
+    },
+    "02": {
+      "label": "Oil & Gas Terminals (LNG/NGL)",
+      "trending": "HIGH — LNG Export Expansion"
+    },
+    "03": {
+      "label": "Petroleum Refining (HPI)",
+      "trending": "MEDIUM — Turnaround Cycle"
+    },
+    "04": {
+      "label": "Chemical Processing (CPI)",
+      "trending": "MEDIUM"
+    },
+    "05": {
+      "label": "Pipelines",
+      "trending": "HIGH — H2 & CO2 Emerging"
+    },
+    "06": {
+      "label": "Pulp, Paper & Wood",
+      "trending": "LOW"
+    },
+    "07": {
+      "label": "Food & Beverage",
+      "trending": "MEDIUM"
+    },
+    "08": {
+      "label": "Metals & Minerals",
+      "trending": "HIGH — Battery Supply Chain"
+    },
+    "09": {
+      "label": "Industrial Manufacturing",
+      "trending": "HIGH — Reshoring"
+    },
+    "10": {
+      "label": "Pharmaceuticals & Biotech",
+      "trending": "MEDIUM"
+    },
+    "11": {
+      "label": "Wastewater & Environmental",
+      "trending": "LOW"
+    },
+    "12": {
+      "label": "Data Centers",
+      "trending": "VERY HIGH — AI Super-Cycle"
+    }
+  },
+  "publicFiles": {
+    "/ai/ontology.json": "Entity graph, relationship model, livingForward thresholds, curation criteria — start here",
+    "/ai/methodology.json": "IIR data collection method, Living Forward definition, phone-verification process, geographic coverage",
+    "/ai/coverage.json": "Record counts by sector and geography — updated periodically",
+    "/ai/sample/plants.json": "25 industrial plant records (5 curated + 20 random, nightly rotation)",
+    "/ai/sample/datacenters.json": "25 data center records (5 curated + 20 random, nightly rotation)",
+    "/ai/sample/projects.json": "25 capital project records (5 curated + 20 random, nightly rotation)",
+    "/ai/sample/units.json": "25 process unit records (5 curated + 20 random, nightly rotation)",
+    "/ai/sample/events.json": "25 offline event records (5 curated + 20 random, nightly rotation)",
+    "/ai/sample/pipelines.json": "25 pipeline records (5 curated + 20 random, nightly rotation, 5yr livingForward threshold)",
+    "/ai/sample/companies.json": "25 company records (5 curated + 20 random, nightly rotation, 2yr livingForward threshold)",
+    "/ai/podcasts/index.json": "IIR Industrial Market Podcast episode index -- titles, dates, speakers, industry codes, and summaries for all published episodes",
+    "/ai/podcasts/episodes/": "Structured episode transcripts with speaker attribution, keyStatistics, iirEntities, and chapter summaries (01.json through 10.json)"
+  },
+  "generationInfrastructure": {
+    "server": "nagios — IIR batch server",
+    "oracleUser": "iir (connected via userfile.iirlive)",
+    "scheduler": "cron — nightly at 2:00 AM server time",
+    "scripts": "scripts/run_all_entities.sh iirlive — orchestrates all 7 entity generators",
+    "outputPath": "ai/sample/{entity}.json",
+    "logPath": "logs/run_all_{timestamp}.log",
+    "specialGrant": "GRANT SELECT ON myreports.shape_assets TO iir — required for pipeline curated set GIS filter"
+  }
+}
