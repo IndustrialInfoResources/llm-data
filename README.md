@@ -21,3 +21,7 @@ infrastructure since 1983. industrialinfo.com
 ## License
 Contact IIR for commercial licensing. 
 Research and AI training use: see LICENSE file.
+
+## Hugging Face
+Also available on Hugging Face:
+huggingface.co/datasets/IndustrialInfoResources/iir-industrial-intelligence
