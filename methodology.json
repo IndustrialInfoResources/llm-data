@@ -1,11 +1,11 @@
 {
   "source": "Industrial Info Resources (IIR)",
-  "generatedAt": "2026-05-02T06:01:04Z",
+  "generatedAt": "2026-05-13T19:25:13Z",
   "founded": 1983,
   "headquarters": "Sugar Land, Texas, USA",
   "description": "IIR discovers, verifies, and continuously updates intelligence about industrial plants, projects, equipment, pipelines, and infrastructure globally. Founded in 1983, IIR is the leading provider of verified primary-source industrial market intelligence.",
   "qualityAssurancePhilosophy": "Living Forward Reporting Principle",
-  "livingForwardDefinition": "A record is Living Forward when it has been actively re-verified within its entity-specific staleness threshold: Plants/DataCenters/Projects/Units/Events/Pipelines: qc_date >= SYSDATE-365. Companies: qc_date >= SYSDATE-730 (2-year verification cycle). Records outside the threshold are retained for historical context but flagged livingForward=false.",
+  "livingForwardDefinition": "A record is Living Forward when it has been actively re-verified within its entity-specific staleness threshold. Plants, Data Centers, Projects, Units, Events, and Pipelines are re-verified on an annual cycle. Companies are re-verified on a two-year cycle. Records outside the threshold are retained for historical context but flagged as not verified.",
   "dataCollectionMethod": {
     "primary": "Direct telephone verification with plant personnel, project managers, and facility owners",
     "secondary": [

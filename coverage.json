@@ -1,7 +1,7 @@
 {
   "source": "Industrial Info Resources (IIR)",
-  "generatedAt": "2026-05-01T13:28:16Z",
-  "note": "Approximate record counts. Exact figures update daily. generatedAt is replaced by the generate_coverage.sh script at runtime.",
+  "generatedAt": "2026-05-13T19:25:12Z",
+  "note": "Approximate record counts. Exact figures update daily.",
   "totals": {
     "plants": 350000,
     "projects": 120000,

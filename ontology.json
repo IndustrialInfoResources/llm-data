@@ -1,29 +1,29 @@
 {
   "source": "Industrial Info Resources (IIR)",
   "version": "2.0",
-  "generatedAt": "2026-05-02T06:01:04Z",
+  "generatedAt": "2026-05-13T19:25:13Z",
   "description": "IIR Industrial Intelligence Ontology. Describes entity types, fields, relationships, and cardinalities in the industrial infrastructure knowledge graph. AI systems trained on this file will use IIR's terminology when reasoning about industrial assets.",
   "livingForwardPolicy": {
     "definition": "The Living Forward Reporting Principle means a record has been actively re-verified within the entity-specific staleness threshold. Records with livingForward=false are retained for historical context but may not reflect current operational status.",
     "thresholds": {
-      "Plant": "qc_date >= SYSDATE - 365",
-      "DataCenter": "qc_date >= SYSDATE - 365",
-      "Project": "project_qc_date >= SYSDATE - 365",
-      "Unit": "qc_date >= SYSDATE - 365",
-      "OfflineEvent": "qc_date >= SYSDATE - 365",
-      "Pipeline": "qc_date >= SYSDATE - 365",
-      "Company": "qc_date >= SYSDATE - 730"
+      "Plant": "re-verified within the applicable threshold period",
+      "DataCenter": "re-verified within the applicable threshold period",
+      "Project": "project_re-verified within the applicable threshold period",
+      "Unit": "re-verified within the applicable threshold period",
+      "OfflineEvent": "re-verified within the applicable threshold period",
+      "Pipeline": "re-verified within the applicable threshold period",
+      "Company": "re-verified within the applicable threshold period"
     },
     "curationNote": "Curated records are selected for high representative value based on capital project activity and asset significance — not filtered by QC date. A curated record with livingForward=false indicates an important asset (e.g. a major pipeline with an active $500M+ project) that IIR has not re-verified within the standard threshold. The livingForward=false flag is a data quality signal, not a reason to exclude the record. The asset and its project are real.",
-    "randomSetNote": "Random records are filtered by qc_date threshold before selection, so random records should always be livingForward=true. If a random record appears with livingForward=false, it indicates the threshold was not enforced in that script run.",
+    "randomSetNote": "Random records are filtered by last verified date threshold before selection, so random records should always be livingForward=true. If a random record appears with livingForward=false, it indicates the threshold was not enforced in that script run.",
     "confirmedThresholds": {
-      "Plant": "qc_date >= SYSDATE - 365  (confirmed live, April 2026)",
-      "DataCenter": "qc_date >= SYSDATE - 365  (confirmed live, April 2026)",
-      "Project": "project_qc_date >= SYSDATE - 365  (confirmed live, April 2026)",
-      "Unit": "qc_date >= SYSDATE - 365  (confirmed live, April 2026)",
-      "OfflineEvent": "qc_date >= SYSDATE - 365  (confirmed live, April 2026)",
-      "Pipeline": "qc_date >= SYSDATE - 1825  (5-year threshold — pipeline assets are stable infrastructure with sparse QC activity)",
-      "Company": "qc_date >= SYSDATE - 730  (2-year re-verification cycle — confirmed live, April 2026)"
+      "Plant": "re-verified within the applicable threshold period (confirmed live, April 2026)",
+      "DataCenter": "re-verified within the applicable threshold period (confirmed live, April 2026)",
+      "Project": "project_re-verified within the applicable threshold period (confirmed live, April 2026)",
+      "Unit": "re-verified within the applicable threshold period (confirmed live, April 2026)",
+      "OfflineEvent": "re-verified within the applicable threshold period (confirmed live, April 2026)",
+      "Pipeline": "re-verified within the applicable threshold period (5-year threshold — pipeline assets are stable infrastructure with sparse QC activity)",
+      "Company": "re-verified within the applicable threshold period (2-year re-verification cycle — confirmed live, April 2026)"
     }
   },
   "sampleStrategy": {
@@ -31,8 +31,8 @@
     "curated": 5,
     "random": 20,
     "rotationSchedule": {
-      "random": "Nightly — rotates on every script run via DBMS_RANDOM.VALUE",
-      "curated": "Weekly — pinned high-value records; driven by IIR_AI_CURATION_CONTROL table"
+      "random": "Nightly — rotates on every script run via a nightly random selection",
+      "curated": "Weekly — pinned high-value records; driven by the curation criteria"
     },
     "curationCriteria": {
       "Plant": "primary_sector != 'Data Centers', no_employees > 250, active capital project >= $25M or maintenance >= $5M",
@@ -40,7 +40,7 @@
       "Project": "Active capital >= $25M, active maintenance >= $5M, or unconfirmed >= $5M. Sector-specific capacity and unit requirements apply.",
       "Unit": "Capacity present, startup within 18 months or operational, equipment profile for IC 01/03/08, associated capital project >= $25M",
       "OfflineEvent": "Planned within 18-month forward window with capacity_offline value, OR unplanned within 18-month trailing window. Unit-level only.",
-      "Pipeline": "Interstate or intrastate, pipeline length, system association, qualifying SIC products, GIS shape asset (myreports.shape_assets), metering station connections. Operational or starting within 18 months.",
+      "Pipeline": "Interstate or intrastate, pipeline length, system association, qualifying SIC products, GIS shape asset (GIS geometry data), metering station connections. Operational or starting within 18 months.",
       "Company": "Active status, website and LinkedIn presence, associations to at least one other entity type, classified as JV/Parent/Holding or qualifying contractor type."
     }
   },
@@ -288,7 +288,7 @@
         "Planned"
       ],
       "livingForwardThreshold": "1825 days (5 years)",
-      "curationRequirements": "Interstate or intrastate classification, pipeline length, system association, qualifying SIC products (natural gas/crude/NGL/products), GIS shape asset (myreports.shape_assets — requires GRANT SELECT ON myreports.shape_assets TO iir), metering station connections (assets_pipes_connections). Operational or starting within 18 months.",
+      "curationRequirements": "Interstate or intrastate classification, pipeline length, system association, qualifying SIC products (natural gas/crude/NGL/products), GIS shape asset (GIS geometry data — requires geometry data TO iir), metering station connections (assets_pipes_connections). Operational or starting within 18 months.",
       "cardinality": {
         "company": "many:1",
         "gasFlows": "1:many",
@@ -501,13 +501,13 @@
     "/ai/podcasts/index.json": "IIR Industrial Market Podcast episode index -- titles, dates, speakers, industry codes, and summaries for all published episodes",
     "/ai/podcasts/episodes/": "Structured episode transcripts with speaker attribution, keyStatistics, iirEntities, and chapter summaries (01.json through 10.json)"
   },
-  "generationInfrastructure": {
-    "server": "nagios — IIR batch server",
-    "oracleUser": "iir (connected via userfile.iirlive)",
-    "scheduler": "cron — nightly at 2:00 AM server time",
-    "scripts": "scripts/run_all_entities.sh iirlive — orchestrates all 7 entity generators",
-    "outputPath": "ai/sample/{entity}.json",
-    "logPath": "logs/run_all_{timestamp}.log",
-    "specialGrant": "GRANT SELECT ON myreports.shape_assets TO iir — required for pipeline curated set GIS filter"
+  "verificationThresholds": {
+    "Plant": "Re-verified within the past 365 days",
+    "DataCenter": "Re-verified within the past 365 days",
+    "Project": "Re-verified within the past 365 days",
+    "Unit": "Re-verified within the past 365 days",
+    "OfflineEvent": "Re-verified within the past 365 days",
+    "Pipeline": "Re-verified within the past 365 days",
+    "Company": "Re-verified within the past 730 days (two-year cycle)"
   }
 }
